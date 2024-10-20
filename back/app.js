@@ -1,41 +1,29 @@
 const mqtt = require("mqtt")
 const express = require("express")
-const bodyParser = require("body-parser")
+const lightRoute = require("./routes/light")
+const errorHandlerMiddleware = require("./middleware/errorHandler")
+const notFoundMiddleware = require("./middleware/notFound")
 
 const app = express()
 const httpPort = 3001
 const mqttClient = mqtt.connect({ host: "test.mosquitto.org", port: 1883 })
 
-app.use(bodyParser.json())
+//Middleware
+app.use(express.json())
+
+app.use("/api/v1/", lightRoute)
+
+//Error handler
+app.use(errorHandlerMiddleware)
+app.use(notFoundMiddleware)
 
 mqttClient.on("connect", () => {
   console.log("Connected to MQTT broker")
-  mqttClient.subscribe("tv/config/mode")
-
-  setInterval(() => {
-    publishHardcodedData()
-  }, 1000)
 })
 
 mqttClient.on("message", (topic, message) => {
   console.log("Received message on topic", topic, ":", message.toString())
 })
-
-// Function to publish hardcoded data
-function publishHardcodedData() {
-  const hardcodedData = { threshold: 25 }
-  mqttClient.publish(
-    "refrigerator/config",
-    JSON.stringify(hardcodedData),
-    (err) => {
-      if (err) {
-        console.error("Failed to publish hardcoded data", err)
-      } else {
-        console.log("Hardcoded data published successfully")
-      }
-    }
-  )
-}
 
 // Start the server
 app.listen(httpPort, () => {

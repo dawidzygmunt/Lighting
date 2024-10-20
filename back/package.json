@@ -1,5 +1,5 @@
 {
-  "name": "esp-32-server",
+  "name": "esp32-mqtt",
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
@@ -15,4 +15,3 @@
     "mqtt": "^5.10.1"
   }
 }
-  
